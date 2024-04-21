@@ -13,13 +13,28 @@ public class PlayerController : MonoBehaviour
 
     public bool invertLook;
 
-    public float moveSpeed = 5f;
+    public float moveSpeed = 5f, runSpeed = 8f;
+    private float activeMoveSpeed;
     private Vector3 moveDir, movement;
+
+    [SerializeField]
+    CharacterController characterController;
+
+    private Camera camera;
+
+    public float jumpForce = 12f, gravityMod = 2.5f;
+
+    [SerializeField]
+    private Transform groundCheckPoint;
+    private bool isGrounded;
+    [SerializeField]
+    private LayerMask groundLayers;
 
     // Start is called before the first frame update
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        camera = Camera.main;
     }
 
     // Update is called once per frame
@@ -27,6 +42,11 @@ public class PlayerController : MonoBehaviour
     {
         Rotation();
         Movement();
+    }
+
+    void LateUpdate()
+    {
+        MoveToCamera();
     }
 
     void Rotation()
@@ -47,8 +67,50 @@ public class PlayerController : MonoBehaviour
     {
         moveDir = new Vector3(Input.GetAxisRaw(Axis.HORIZONTAL), 0f, Input.GetAxisRaw(Axis.VERTICAL));
 
-        movement = ((transform.forward * moveDir.z) + (transform.right * moveDir.x)).normalized;
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            activeMoveSpeed = runSpeed;
+        }
+        else
+        {
+            activeMoveSpeed = moveSpeed;
+        }
 
-        transform.position += movement * moveSpeed * Time.deltaTime;
+        float yVel = movement.y;
+        movement = ((transform.forward * moveDir.z) + (transform.right * moveDir.x)).normalized * activeMoveSpeed;
+        movement.y = yVel;
+
+        if (characterController.isGrounded)
+            movement.y = 0f;
+
+        isGrounded = Physics.Raycast(groundCheckPoint.position, Vector3.down, 0.25f, groundLayers);
+
+        if (Input.GetButtonDown(GetButton.BUTTON_JUMP) && isGrounded)
+        {
+            movement.y = jumpForce;
+        }
+
+        movement.y += Physics.gravity.y * Time.deltaTime * gravityMod;
+
+        // transform.position += movement * moveSpeed * Time.deltaTime;
+        characterController.Move(movement * Time.deltaTime);
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else if (Cursor.lockState == CursorLockMode.None)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+        }
+    }
+
+    void MoveToCamera()
+    {
+        camera.transform.position = viewPoint.position;
+        camera.transform.rotation = viewPoint.rotation;
     }
 }
