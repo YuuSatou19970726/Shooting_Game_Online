@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     CharacterController characterController;
 
-    private Camera camera;
+    private new Camera camera;
 
     public float jumpForce = 12f, gravityMod = 2.5f;
 
@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
     {
         Rotation();
         Movement();
+        Event();
     }
 
     void LateUpdate()
@@ -105,6 +106,25 @@ public class PlayerController : MonoBehaviour
             {
                 Cursor.lockState = CursorLockMode.Locked;
             }
+        }
+    }
+
+    private void Event()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Shoot();
+        }
+    }
+
+    private void Shoot()
+    {
+        Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        ray.origin = camera.transform.position;
+
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            Debug.Log("Hit: " + hit.collider.gameObject);
         }
     }
 
