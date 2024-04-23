@@ -24,8 +24,8 @@ public class Laucher : MonoBehaviourPunCallbacks
     [SerializeField]
     private TMP_InputField roomNameInput;
 
-    // List Room
-    [Tooltip("List Room")]
+    // My Room
+    [Tooltip("My Room")]
     [SerializeField]
     private GameObject roomScreen;
     [SerializeField]
@@ -37,6 +37,14 @@ public class Laucher : MonoBehaviourPunCallbacks
     private GameObject errorScreen;
     [SerializeField]
     private TMP_Text errorText;
+
+    // List Room
+    [Tooltip("Room List")]
+    [SerializeField]
+    private GameObject roomBrowserScreen;
+    [SerializeField]
+    private RoomButton theRoomButton;
+    private List<RoomButton> allRoomButtons = new List<RoomButton>();
 
     void Awake()
     {
@@ -61,19 +69,7 @@ public class Laucher : MonoBehaviourPunCallbacks
         createRoomScreen.SetActive(false);
         roomScreen.SetActive(false);
         errorScreen.SetActive(false);
-    }
-
-    public override void OnConnectedToMaster()
-    {
-        PhotonNetwork.JoinLobby();
-
-        loadingText.text = "Joining Lobby...";
-    }
-
-    public override void OnJoinedLobby()
-    {
-        CloseMenus();
-        menuButtons.SetActive(true);
+        roomBrowserScreen.SetActive(false);
     }
 
     public void OpenRoomCreate()
@@ -96,6 +92,60 @@ public class Laucher : MonoBehaviourPunCallbacks
         loadingScreen.SetActive(true);
     }
 
+    public void CloseErrorScreen()
+    {
+        CloseMenus();
+        menuButtons.SetActive(true);
+    }
+
+    public void LeaveRoom()
+    {
+        PhotonNetwork.LeaveRoom();
+        CloseMenus();
+        loadingText.text = "Leaving Room";
+        loadingScreen.SetActive(true);
+    }
+
+    public void OpenRoomBrowser()
+    {
+        CloseMenus();
+        roomBrowserScreen.SetActive(true);
+    }
+
+    public void CloseRoomBrowser()
+    {
+        CloseMenus();
+        menuButtons.SetActive(true);
+    }
+
+    public void JoinRoom(RoomInfo inputInfo)
+    {
+        PhotonNetwork.JoinRoom(inputInfo.Name);
+
+        CloseMenus();
+        loadingText.text = "Joining Room";
+        loadingScreen.SetActive(true);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
+    // override
+    public override void OnConnectedToMaster()
+    {
+        PhotonNetwork.JoinLobby();
+
+        loadingText.text = "Joining Lobby...";
+    }
+
+    public override void OnJoinedLobby()
+    {
+        CloseMenus();
+        menuButtons.SetActive(true);
+    }
+
     public override void OnJoinedRoom()
     {
         CloseMenus();
@@ -111,10 +161,33 @@ public class Laucher : MonoBehaviourPunCallbacks
         errorScreen.SetActive(true);
     }
 
-    public void CloseErrorScreen()
+    public override void OnLeftRoom()
     {
         CloseMenus();
         menuButtons.SetActive(true);
+    }
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        foreach (RoomButton rb in allRoomButtons)
+        {
+            Destroy(rb.gameObject);
+        }
+        allRoomButtons.Clear();
+
+        theRoomButton.gameObject.SetActive(false);
+
+        for (int i = 0; i < roomList.Count; i++)
+        {
+            if (roomList[i].PlayerCount != roomList[i].MaxPlayers && !roomList[i].RemovedFromList)
+            {
+                RoomButton newButton = Instantiate(theRoomButton, theRoomButton.transform.parent);
+                newButton.SetButtonDetail(roomList[i]);
+                newButton.gameObject.SetActive(true);
+
+                allRoomButtons.Add(newButton);
+            }
+        }
     }
 
     void MakeInstance()
