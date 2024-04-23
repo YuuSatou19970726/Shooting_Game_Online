@@ -29,7 +29,8 @@ public class Laucher : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject roomScreen;
     [SerializeField]
-    private TMP_Text roomNameText;
+    private TMP_Text roomNameText, playerNameLabel;
+    private List<TMP_Text> allPlayerNames = new List<TMP_Text>();
 
     // Error
     [Tooltip("Error")]
@@ -132,6 +133,25 @@ public class Laucher : MonoBehaviourPunCallbacks
         Application.Quit();
     }
 
+    private void ListAllPlayer()
+    {
+        foreach (TMP_Text player in allPlayerNames)
+        {
+            Destroy(player);
+        }
+        allPlayerNames.Clear();
+
+        Player[] players = PhotonNetwork.PlayerList;
+        for (int i = 0; i < players.Length; i++)
+        {
+            TMP_Text newPlayerLabel = Instantiate(playerNameLabel, playerNameLabel.transform.parent);
+            newPlayerLabel.text = players[i].NickName;
+            newPlayerLabel.gameObject.SetActive(true);
+
+            allPlayerNames.Add(newPlayerLabel);
+        }
+    }
+
     // override
     public override void OnConnectedToMaster()
     {
@@ -144,6 +164,8 @@ public class Laucher : MonoBehaviourPunCallbacks
     {
         CloseMenus();
         menuButtons.SetActive(true);
+
+        PhotonNetwork.NickName = Random.Range(0, 1000).ToString();
     }
 
     public override void OnJoinedRoom()
@@ -152,6 +174,8 @@ public class Laucher : MonoBehaviourPunCallbacks
         roomScreen.SetActive(true);
 
         roomNameText.text = PhotonNetwork.CurrentRoom.Name;
+
+        ListAllPlayer();
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
