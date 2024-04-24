@@ -48,13 +48,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject playerHit;
 
+    public int maxHealth = 100;
+    private int currentHealth;
+
     // Start is called before the first frame update
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         camera = Camera.main;
         UIController.instance.weaponTempSlider.maxValue = maxHeat;
+
         SwitchGun();
+
+        currentHealth = maxHealth;
+        UIController.instance.healthSlider.maxValue = maxHealth;
+        UIController.instance.healthSlider.value = currentHealth;
         // Transform newTrans = SpawnManager.instance.GetSpawnPoint();
         // transform.position = newTrans.position;
         // transform.rotation = newTrans.rotation;
@@ -223,7 +231,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (hit.collider.gameObject.CompareTag(Tags.PLAYER_TAG))
             {
                 PhotonNetwork.Instantiate(playerHit.name, hit.point, Quaternion.identity);
-                hit.collider.gameObject.GetPhotonView().RPC(nameof(DealDamage), RpcTarget.All, photonView.Owner.NickName);
+                hit.collider.gameObject.GetPhotonView().RPC(nameof(DealDamage), RpcTarget.All, photonView.Owner.NickName, allGuns[selectedGun].shotDamage);
             }
             else
             {
@@ -268,18 +276,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     // PUN
     [PunRPC]
-    public void DealDamage(string damageByPlayer)
+    public void DealDamage(string damageByPlayer, int damageAmount)
     {
-        TakeDamage(damageByPlayer);
+        TakeDamage(damageByPlayer, damageAmount);
     }
 
-    void TakeDamage(string damageByPlayer)
+    void TakeDamage(string damageByPlayer, int damageAmount)
     {
         if (photonView.IsMine)
         {
-            // Debug.Log("I've been hit by " + damageByPlayer);
-            // gameObject.SetActive(false);
-            PlayerSpawner.instance.Die();
+            currentHealth -= damageAmount;
+            if (currentHealth <= 0)
+            {
+                PlayerSpawner.instance.Die(damageByPlayer);
+            }
+            UIController.instance.healthSlider.value = currentHealth;
         }
 
     }

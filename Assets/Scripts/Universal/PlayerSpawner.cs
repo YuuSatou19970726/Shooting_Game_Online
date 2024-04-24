@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
@@ -13,6 +14,8 @@ public class PlayerSpawner : MonoBehaviour
     private GameObject deathEffect;
 
     private GameObject player;
+
+    public float respawnTime = 5f;
 
     void Awake()
     {
@@ -38,10 +41,27 @@ public class PlayerSpawner : MonoBehaviour
         player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
     }
 
-    public void Die()
+    public void Die(String damageByPlayer)
+    {
+
+
+        UIController.instance.deathText.text = "You were killed by " + damageByPlayer;
+
+        if (player != null)
+        {
+            StartCoroutine(DieCo());
+        }
+
+    }
+
+    IEnumerator DieCo()
     {
         PhotonNetwork.Instantiate(deathEffect.name, player.transform.position, Quaternion.identity);
         PhotonNetwork.Destroy(player);
+        UIController.instance.deathScreen.SetActive(true);
+
+        yield return new WaitForSeconds(respawnTime);
+        UIController.instance.deathScreen.SetActive(false);
         SpawnPlayer();
     }
 
