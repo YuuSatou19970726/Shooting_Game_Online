@@ -20,3 +20,8 @@ public class GetButton
 {
     public const string BUTTON_JUMP = "Jump";
 }
+
+public class PlayerPref
+{
+    public const string PLAYER_NAME = "playerName";
+}
