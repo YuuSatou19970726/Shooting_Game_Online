@@ -25,3 +25,14 @@ public class PlayerPref
 {
     public const string PLAYER_NAME = "playerName";
 }
+
+public class SceneTag
+{
+    public const string SCENES_MAIN_MENU = "Main Menu";
+    public const string SCENES_MAP_1 = "Map 1";
+}
+
+public class Tags
+{
+    public const string PLAYER_TAG = "Player";
+}
