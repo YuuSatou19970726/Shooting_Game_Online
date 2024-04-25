@@ -43,15 +43,12 @@ public class PlayerSpawner : MonoBehaviour
 
     public void Die(String damageByPlayer)
     {
-
-
         UIController.instance.deathText.text = "You were killed by " + damageByPlayer;
 
         if (player != null)
         {
             StartCoroutine(DieCo());
         }
-
     }
 
     IEnumerator DieCo()

@@ -36,3 +36,10 @@ public class Tags
 {
     public const string PLAYER_TAG = "Player";
 }
+
+public class Animations
+{
+    // character
+    public const string SPEED_FLOAT = "speed";
+    public const string GROUNDED_BOOL = "grounded";
+}
