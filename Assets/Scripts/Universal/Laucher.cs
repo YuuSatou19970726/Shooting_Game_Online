@@ -102,7 +102,7 @@ public class Laucher : MonoBehaviourPunCallbacks
     {
         RoomOptions options = new RoomOptions
         {
-            MaxPlayers = 8
+            MaxPlayers = 8,
         };
 
         PhotonNetwork.CreateRoom(roomNameInput.text, options);
@@ -140,7 +140,15 @@ public class Laucher : MonoBehaviourPunCallbacks
 
     public void JoinRoom(RoomInfo inputInfo)
     {
-        PhotonNetwork.JoinRoom(inputInfo.Name);
+        if (PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.JoinRoom(inputInfo.Name);
+        }
+        else
+        {
+            Debug.LogWarning("Không thể tham gia phòng vì không kết nối với mạng Photon.");
+            return;
+        }
 
         CloseMenus();
         loadingText.text = "Joining Room";
@@ -186,16 +194,22 @@ public class Laucher : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
-        PhotonNetwork.LoadLevel(levelToPlay);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+
+            PhotonNetwork.LoadLevel(levelToPlay);
+        }
     }
 
     public void QuickJoin()
     {
         RoomOptions options = new RoomOptions
         {
-            MaxPlayers = 8
+            MaxPlayers = 8,
         };
-        PhotonNetwork.CreateRoom("Test", options);
+        PhotonNetwork.CreateRoom("Demo", options);
         CloseMenus();
         loadingText.text = "Create Room";
         loadingScreen.SetActive(true);
@@ -245,6 +259,11 @@ public class Laucher : MonoBehaviourPunCallbacks
             startButton.gameObject.SetActive(true);
         else
             startButton.gameObject.SetActive(false);
+    }
+
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        Debug.LogError($"Tham gia phòng thất bại: {message} (Mã lỗi: {returnCode})");
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)

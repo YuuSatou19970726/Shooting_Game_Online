@@ -124,14 +124,60 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
     }
 
-    public void UpdateStatsSend()
+    public void UpdateStatsSend(int actorSending, int statToUpdate, int amountToChange)
     {
+        object[] package = new object[] { actorSending, statToUpdate, amountToChange };
 
+        PhotonNetwork.RaiseEvent(
+            (byte)EventCodes.UpdateStats,
+            package,
+            new RaiseEventOptions { Receivers = ReceiverGroup.All },
+            new SendOptions { Reliability = true }
+        );
     }
 
     public void UpdateStatsReceive(object[] dataReceived)
     {
+        int actor = (int)dataReceived[0];
+        int statType = (int)dataReceived[1];
+        int amount = (int)dataReceived[2];
 
+        for (int i = 0; i < allPlayers.Count; i++)
+        {
+            if (allPlayers[i].actor == actor)
+            {
+                switch (statType)
+                {
+                    case 0: // kills
+                        allPlayers[i].kills += amount;
+                        Debug.Log("Player " + allPlayers[i].name + " : kills " + allPlayers[i].kills);
+                        break;
+                    case 1: // deaths
+                        allPlayers[i].deaths += amount;
+                        Debug.Log("Player " + allPlayers[i].name + " : deaths " + allPlayers[i].deaths);
+                        break;
+                }
+
+                if (i == index)
+                    UpdateStatsDisplay();
+
+                break;
+            }
+        }
+    }
+
+    void UpdateStatsDisplay()
+    {
+        if (allPlayers.Count > index)
+        {
+            UIController.instance.killsText.text = "Kills: " + allPlayers[index].kills;
+            UIController.instance.deathsText.text = "Deaths: " + allPlayers[index].deaths;
+        }
+        else
+        {
+            UIController.instance.killsText.text = "Kills: " + 0;
+            UIController.instance.deathsText.text = "Deaths: " + 0;
+        }
     }
 
     void MakeInstance()

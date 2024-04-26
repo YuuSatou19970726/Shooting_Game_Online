@@ -257,7 +257,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (hit.collider.gameObject.CompareTag(Tags.PLAYER_TAG))
             {
                 PhotonNetwork.Instantiate(playerHit.name, hit.point, Quaternion.identity);
-                hit.collider.gameObject.GetPhotonView().RPC(nameof(DealDamage), RpcTarget.All, photonView.Owner.NickName, allGuns[selectedGun].shotDamage);
+                hit.collider.gameObject.GetPhotonView().RPC(nameof(DealDamage), RpcTarget.All, photonView.Owner.NickName, allGuns[selectedGun].shotDamage, PhotonNetwork.LocalPlayer.ActorNumber);
             }
             else
             {
@@ -300,7 +300,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    void TakeDamage(string damageByPlayer, int damageAmount)
+    void TakeDamage(string damageByPlayer, int damageAmount, int actor)
     {
         if (photonView.IsMine)
         {
@@ -308,6 +308,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (currentHealth <= 0)
             {
                 PlayerSpawner.instance.Die(damageByPlayer);
+
+                MatchManager.instance.UpdateStatsSend(actor, 0, 1);
             }
             UIController.instance.healthSlider.value = currentHealth;
         }
@@ -316,9 +318,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     // PUN
     [PunRPC]
-    public void DealDamage(string damageByPlayer, int damageAmount)
+    public void DealDamage(string damageByPlayer, int damageAmount, int actor)
     {
-        TakeDamage(damageByPlayer, damageAmount);
+        TakeDamage(damageByPlayer, damageAmount, actor);
     }
 
     [PunRPC]

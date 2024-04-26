@@ -19,8 +19,27 @@ public class RoomButton : MonoBehaviour
 
     public void OpenRoom()
     {
-        Laucher.instance.JoinRoom(roomInfo);
-        // PhotonNetwork.JoinRoom(roomInfo.Name);
+        if (!PhotonNetwork.IsConnected)
+        {
+            Debug.LogError("Bạn chưa kết nối với máy chủ Photon.");
+            return;
+        }
+
+        // Kiểm tra nếu phòng đang mở
+        if (roomInfo.IsOpen)
+        {
+            Laucher.instance.JoinRoom(roomInfo);
+        }
+        else
+        {
+            Debug.Log($"Phòng {roomInfo.Name} đã đóng.");
+        }
+
+        // Kiểm tra nếu phòng đã bị xóa khỏi danh sách
+        if (roomInfo.RemovedFromList)
+        {
+            Debug.Log($"Phòng {roomInfo.Name} đã bị xóa khỏi danh sách.");
+        }
     }
 
 }
