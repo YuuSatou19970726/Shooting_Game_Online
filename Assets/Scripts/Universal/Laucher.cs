@@ -74,11 +74,17 @@ public class Laucher : MonoBehaviourPunCallbacks
         loadingScreen.SetActive(true);
         loadingText.text = "Connecting to Network...";
 
-        PhotonNetwork.ConnectUsingSettings();
+        if (!PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.ConnectUsingSettings();
+        }
 
 #if UNITY_EDITOR
         roomTestButton.SetActive(true);
 #endif
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     void CloseMenus()
@@ -100,16 +106,19 @@ public class Laucher : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
-        RoomOptions options = new RoomOptions
+        if (!string.IsNullOrEmpty(roomNameInput.text))
         {
-            MaxPlayers = 8,
-        };
+            RoomOptions options = new RoomOptions
+            {
+                MaxPlayers = 8,
+            };
 
-        PhotonNetwork.CreateRoom(roomNameInput.text, options);
+            PhotonNetwork.CreateRoom(roomNameInput.text, options);
 
-        CloseMenus();
-        loadingText.text = "Creating Room...";
-        loadingScreen.SetActive(true);
+            CloseMenus();
+            loadingText.text = "Creating Room...";
+            loadingScreen.SetActive(true);
+        }
     }
 
     public void CloseErrorScreen()
@@ -196,8 +205,8 @@ public class Laucher : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            PhotonNetwork.CurrentRoom.IsOpen = false;
-            PhotonNetwork.CurrentRoom.IsVisible = false;
+            // PhotonNetwork.CurrentRoom.IsOpen = false;
+            // PhotonNetwork.CurrentRoom.IsVisible = false;
 
             PhotonNetwork.LoadLevel(levelToPlay);
         }

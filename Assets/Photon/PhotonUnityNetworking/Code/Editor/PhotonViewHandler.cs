@@ -60,15 +60,12 @@ namespace Photon.Pun
             {
                 if (PhotonEditorUtils.IsPrefab(view.gameObject))
                 {
-                    // prefabs should use 0 as ViewID and sceneViewId
-                    if (view.ViewID != 0 || view.sceneViewId != 0)
+                    if (view.ViewID != 0)
                     {
                         view.ViewID = 0;
-                        view.sceneViewId = 0;
                         EditorUtility.SetDirty(view);
                     }
-
-                    continue;   // skip prefabs in further processing
+                    continue;   // skip prefabs
                 }
 
                 photonViewInstances.Add(view);
