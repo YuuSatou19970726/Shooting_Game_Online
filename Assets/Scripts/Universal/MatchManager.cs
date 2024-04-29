@@ -10,7 +10,8 @@ public enum EventCodes : byte
 {
     NewPlayer,
     ListPlayers,
-    UpdateStats
+    UpdateStats,
+    NextMatch
 }
 
 public enum GameState
@@ -34,6 +35,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public Transform mapCameraPoint;
     public GameState state = GameState.Waiting;
     public float waitAfterEnding = 5f;
+
+    public bool perpetual;
 
     void Awake()
     {
@@ -310,6 +313,9 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
+        Camera.main.transform.position = mapCameraPoint.position;
+        Camera.main.transform.rotation = mapCameraPoint.rotation;
+
         StartCoroutine(EndCo());
     }
 
@@ -317,8 +323,44 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         yield return new WaitForSeconds(waitAfterEnding);
 
-        PhotonNetwork.AutomaticallySyncScene = false;
-        PhotonNetwork.LeaveRoom();
+        if (!perpetual)
+        {
+            PhotonNetwork.AutomaticallySyncScene = false;
+            PhotonNetwork.LeaveRoom();
+        }
+        else
+        {
+            if (PhotonNetwork.IsMasterClient)
+                NextMatchSend();
+        }
+    }
+
+    public void NextMatchSend()
+    {
+        PhotonNetwork.RaiseEvent(
+            (byte)EventCodes.NextMatch,
+            null,
+            new RaiseEventOptions { Receivers = ReceiverGroup.All },
+            new SendOptions { Reliability = true }
+        );
+    }
+
+    public void NextMatchReceive()
+    {
+        state = GameState.Playing;
+
+        UIController.instance.endScreen.SetActive(false);
+        UIController.instance.leaderboard.SetActive(false);
+
+        foreach (PlayerInfo player in allPlayers)
+        {
+            player.kills = 0;
+            player.deaths = 0;
+        }
+
+        UpdateStatsDisplay();
+
+        PlayerSpawner.instance.SpawnPlayer();
     }
 
     void MakeInstance()
@@ -347,6 +389,9 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
                     break;
                 case EventCodes.UpdateStats:
                     UpdateStatsReceive(data);
+                    break;
+                case EventCodes.NextMatch:
+                    NextMatchReceive();
                     break;
             }
         }

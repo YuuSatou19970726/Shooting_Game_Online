@@ -295,8 +295,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (photonView.IsMine)
         {
-            camera.transform.position = viewPoint.position;
-            camera.transform.rotation = viewPoint.rotation;
+            if (MatchManager.instance.state == GameState.Playing)
+            {
+                camera.transform.position = viewPoint.position;
+                camera.transform.rotation = viewPoint.rotation;
+            }
+            else
+            {
+                camera.transform.position = MatchManager.instance.mapCameraPoint.position;
+                camera.transform.rotation = MatchManager.instance.mapCameraPoint.rotation;
+            }
         }
     }
 

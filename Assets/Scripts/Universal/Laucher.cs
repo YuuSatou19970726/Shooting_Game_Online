@@ -52,7 +52,7 @@ public class Laucher : MonoBehaviourPunCallbacks
     private GameObject nameInputScreen;
     [SerializeField]
     private TMP_InputField nameInput;
-    private bool hasSetNick;
+    public static bool hasSetNick;
 
     [SerializeField]
     private string levelToPlay;

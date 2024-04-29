@@ -8266,9 +8266,10 @@ MonoBehaviour:
   allPlayers: []
   theEvent: 0
   killsToWin: 3
-  mapCameraPoint: {fileID: 0}
+  mapCameraPoint: {fileID: 1843151101}
   state: 0
   waitAfterEnding: 5
+  perpetual: 1
 --- !u!4 &1983549299
 Transform:
   m_ObjectHideFlags: 0
