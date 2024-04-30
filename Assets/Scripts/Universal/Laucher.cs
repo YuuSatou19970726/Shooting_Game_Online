@@ -62,6 +62,9 @@ public class Laucher : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject roomTestButton;
 
+    public string[] allMaps;
+    public bool changeMapBetweenRounds = true;
+
     void Awake()
     {
         MakeInstance();
@@ -208,7 +211,9 @@ public class Laucher : MonoBehaviourPunCallbacks
             // PhotonNetwork.CurrentRoom.IsOpen = false;
             // PhotonNetwork.CurrentRoom.IsVisible = false;
 
-            PhotonNetwork.LoadLevel(levelToPlay);
+            // PhotonNetwork.LoadLevel(levelToPlay);
+
+            PhotonNetwork.LoadLevel(Random.Range(0, allMaps.Length));
         }
     }
 

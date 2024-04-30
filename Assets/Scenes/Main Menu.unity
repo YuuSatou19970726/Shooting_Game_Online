@@ -5899,9 +5899,13 @@ MonoBehaviour:
   theRoomButton: {fileID: 1741433969}
   nameInputScreen: {fileID: 1914627534}
   nameInput: {fileID: 1997578335}
-  levelToPlay: Map 1
+  levelToPlay: Map 2
   startButton: {fileID: 1085114512}
   roomTestButton: {fileID: 311307423}
+  allMaps:
+  - Map 1
+  - Map 2
+  changeMapBetweenRounds: 1
 --- !u!1 &2145080716
 GameObject:
   m_ObjectHideFlags: 0
