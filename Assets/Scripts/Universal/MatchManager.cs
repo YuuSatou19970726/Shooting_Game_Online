@@ -81,7 +81,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     void Update()
     {
         Event();
-        CheckTimer();
+        if (PhotonNetwork.InRoom)
+            CheckTimer();
     }
 
     void Event()

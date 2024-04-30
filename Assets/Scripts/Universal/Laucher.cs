@@ -210,10 +210,11 @@ public class Laucher : MonoBehaviourPunCallbacks
         {
             // PhotonNetwork.CurrentRoom.IsOpen = false;
             // PhotonNetwork.CurrentRoom.IsVisible = false;
+            int newLevel = Random.Range(0, allMaps.Length);
 
             // PhotonNetwork.LoadLevel(levelToPlay);
 
-            PhotonNetwork.LoadLevel(Random.Range(0, allMaps.Length));
+            PhotonNetwork.LoadLevel(allMaps[newLevel]);
         }
     }
 
